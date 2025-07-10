@@ -1,10 +1,28 @@
 from sklearn.ensemble import RandomForestClassifier 
 from sklearn.datasets import make_classification
-import pandas as pd 
+import pandas as pd
+import sqlite3
+from contextlib import closing
 
-X, y = make_classification(n_samples=1000, n_features=4,
-                           n_informative=2, n_redundant=0,
-                           random_state=0, shuffle=False)
-clf = RandomForestClassifier(max_depth=2, random_state=0)
-clf.fit(X, y)
-print(clf.predict([[0, 0, 0, 0]]))
+db = "test 2.db"
+
+def get_events(uid:int):
+    with closing(sqlite3.connect(db)) as conn:
+        return pd.read_sql(
+            f"SELECT * FROM events_{uid}", conn
+        )
+
+def get_session(uid:int, start:int, stop:int):
+    with closing(sqlite3.connect(db)) as conn:
+        return pd.read_sql(
+            f"SELECT * FROM session_{uid} LIMIT {stop-start} OFFSET {start}", conn
+        )
+
+events = get_events(20241003152320)
+events.head()
+
+session = get_session(20241003152320, events.iloc[0, 0], events.iloc[-1,0])
+session.head()
+
+X = session[['delta0','theta0','low_alpha0','high_alpha0','low_beta0','high_beta0','low_gamma0','high_gamma0']]
+y = session[['attention0','meditation0']]
