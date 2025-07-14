@@ -26,3 +26,6 @@ session.head()
 
 X = session[['delta0','theta0','low_alpha0','high_alpha0','low_beta0','high_beta0','low_gamma0','high_gamma0']]
 y = session[['attention0','meditation0']]
+
+clf = RandomForestClassifier(max_depth=2, random_state=0)
+clf.fit(X, y)
